@@ -1,0 +1,60 @@
+name: Deploy Multiple Lambdas to AWS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install shared dependencies
+        run: npm install
+
+      # --- Package Lambda Function A ---
+      - name: Package Lambda A
+        run: |
+          mkdir -p build/a
+          cp lambda-function-a/index.js build/a/
+          cp package.json build/a/
+          cp -r node_modules build/a/
+          cd build/a && zip -r ../function-a.zip .
+
+      # --- Package Lambda Function B ---
+      - name: Package Lambda B
+        run: |
+          mkdir -p build/b
+          cp lambda-function-b/index.js build/b/
+          cp package.json build/b/
+          cp -r node_modules build/b/
+          cd build/b && zip -r ../function-b.zip .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # --- Deploy Lambda A ---
+      - name: Deploy Lambda A
+        run: |
+          aws lambda update-function-code \
+            --function-name lambda-function-a \
+            --zip-file fileb://build/function-a.zip
+
+      # --- Deploy Lambda B ---
+      - name: Deploy Lambda B
+        run: |
+          aws lambda update-function-code \
+            --function-name lambda-function-b \
+            --zip-file fileb://build/function-b.zip
