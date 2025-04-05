@@ -25,11 +25,15 @@ jobs:
         run: zip -r function.zip index.js node_modules package.json
         working-directory: ./src
 
-      - name: Deploy to AWS Lambda
-        uses: appleboy/lambda-action@v0.1.0
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
-          function_name: github-actions-poc
-          zip_file: ./src/function.zip
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name github-actions-poc \
+            --zip-file fileb://src/function.zip
