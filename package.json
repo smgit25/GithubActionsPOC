@@ -1,0 +1,16 @@
+{
+  "name": "githubactionspoc",
+  "version": "1.0.0",
+  "description": "A sample Github Actions POC",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/**/*.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^9.24.0"
+  }
+}
